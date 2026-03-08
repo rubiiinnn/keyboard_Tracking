@@ -1,10 +1,13 @@
 
 import cv2
 from cvzone.HandTrackingModule import HandDetector
+
 #isko use krke humara code short hoga bss -> ye older version hai
 import mediapipe as mp
 
-detector = HandDetector(detectionCon=0.8)
+#detectionCon : Minimum confidence level for detecting a hand , accuracy bdaa di 
+#maxHands=2 → Detect maximum 2 hands in the frame.
+detector = HandDetector(detectionCon=0.8, maxHands=2)
 
 cap = cv2.VideoCapture(0)
 
@@ -12,7 +15,8 @@ cap = cv2.VideoCapture(0)
 #syntax : cap.set(property ID , value you are setting)
 # refer table
 cap.set(3,2120) #3 - frame widht id , 2120 - pixel width
-cap.set(4,1080)
+cap.set(4,1080) #Frame height
+
 """
 property ID -> 0 to 18
 0. CV_CAP_PROP_POS_MSEC Current position of the video file in milliseconds.
@@ -36,13 +40,22 @@ property ID -> 0 to 18
 18. CV_CAP_PROP_RECTIFICATION Rectification flag for stereo cameras (note: only supported by DC1394 v 2.x backend currently)
 """
 
-while True:
-    res, frame = cap.read()
-    img = detector.findHands(img)
-    lmList , bboxInfo= detector.findPosition(img)
+while True: #This loop keeps running taki webcam video updates continuously
+
+    #res -> True/False if frame was captured
+     #frame -> webacam ki Actual image
+    res, frame = cap.read() # ik fame ko capture
+
+    hands, img = detector.findHands(frame) #main hand detection step
+
+    if hands:
+        hand = hands[0]  # first hand
+        lmList = hand["lmList"]  # 21 landmark points
+        bbox = hand["bbox"]  # rectangle around the hand
+
+        print(lmList[8])  # index finger tip position
 
     cv2.imshow("Image", img)
-
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
