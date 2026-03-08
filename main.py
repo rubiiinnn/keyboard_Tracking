@@ -1,9 +1,18 @@
+
 import cv2
+from cvzone.HandTrackingModule import HandDetector
+#isko use krke humara code short hoga bss -> ye older version hai
 import mediapipe as mp
 
-cap = cv2.VideoCapture(0) #video ki schema cap ke andr
+detector = HandDetector(detectionCon=0.8)
+
+cap = cv2.VideoCapture(0)
+
 #.set identies hoti hai
 #syntax : cap.set(property ID , value you are setting)
+# refer table
+cap.set(3,2120) #3 - frame widht id , 2120 - pixel width
+cap.set(4,1080)
 """
 property ID -> 0 to 18
 0. CV_CAP_PROP_POS_MSEC Current position of the video file in milliseconds.
@@ -26,16 +35,16 @@ property ID -> 0 to 18
 17. CV_CAP_PROP_WHITE_BALANCE Currently unsupported
 18. CV_CAP_PROP_RECTIFICATION Rectification flag for stereo cameras (note: only supported by DC1394 v 2.x backend currently)
 """
-cap.set(3,2120) # 3-property ID ie Frame width , 2120 -Width in pixels
-cap.set(4,1080)
-
-#utilities
-mp_hands = mp.solutions.hands
-mp_draw = mp.solutions.drawing_utils
 
 while True:
-    ret, img = cap.read()
+    res, frame = cap.read()
+    img = detector.findHands(img)
+    lmList , bboxInfo= detector.findPosition(img)
 
-    cv2.imshow("Image",img)
+    cv2.imshow("Image", img)
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+cap.release()
+cv2.destroyAllWindows()
